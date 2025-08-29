@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Navigate, useLocation } from "react-router";
 
 interface ProtectedRouteProperties {
@@ -7,14 +7,14 @@ interface ProtectedRouteProperties {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProperties> = ({ children }) => {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, user } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return <p>Loading...</p>;
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     localStorage.setItem(
       "redirectPath",
       globalThis.location.pathname + globalThis.location.search,

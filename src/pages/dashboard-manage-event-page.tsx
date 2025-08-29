@@ -47,7 +47,7 @@ import {
   Trash,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { useNavigate, useParams } from "react-router";
 
 interface DateTimeSelectProperties {
@@ -148,7 +148,7 @@ interface EventData {
 }
 
 const DashboardManageEventPage: React.FC = () => {
-  const { isLoading, user } = useAuth();
+  const { isLoading, getAccessToken } = useAuth();
   const { id } = useParams();
   const isEditMode = !!id;
   const navigate = useNavigate();
@@ -188,9 +188,10 @@ const DashboardManageEventPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isEditMode && !isLoading && user?.access_token) {
+    const accessToken = getAccessToken();
+    if (isEditMode && !isLoading && accessToken) {
       const fetchEvent = async () => {
-        const event: EventDetails = await getEvent(user.access_token, id);
+        const event: EventDetails = await getEvent(accessToken, id);
         setEventData({
           id: event.id,
           name: event.name,
@@ -227,7 +228,7 @@ const DashboardManageEventPage: React.FC = () => {
       };
       fetchEvent();
     }
-  }, [id, user]);
+  }, [id, getAccessToken]);
 
   const formatTimeFromDate = (date: Date): string => {
     const hours = date.getHours().toString().padStart(2, "0");
@@ -363,8 +364,9 @@ const DashboardManageEventPage: React.FC = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(undefined);
+    const accessToken = getAccessToken();
 
-    if (isLoading || !user || !user.access_token) {
+    if (isLoading || !accessToken) {
       console.error("User not found!");
       return;
     }
@@ -374,9 +376,9 @@ const DashboardManageEventPage: React.FC = () => {
         setError("Event does not have an ID");
         return;
       }
-      await handleEventUpdateSubmit(user.access_token, eventData.id);
+      await handleEventUpdateSubmit(accessToken, eventData.id);
     } else {
-      await handleEventCreateSubmit(user.access_token);
+      await handleEventCreateSubmit(accessToken);
     }
   };
 

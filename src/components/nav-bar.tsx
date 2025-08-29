@@ -1,4 +1,4 @@
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import { useRoles } from "@/hooks/use-roles";
 import { Link } from "react-router";
 
 const NavBar: React.FC = () => {
-  const { user, signoutRedirect } = useAuth();
+  const { user, signOut } = useAuth();
   const { isOrganizer } = useRoles();
 
   return (
@@ -32,7 +32,7 @@ const NavBar: React.FC = () => {
             <DropdownMenuTrigger>
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-gray-700">
-                  {user?.profile?.preferred_username?.slice(0, 2).toUpperCase()}
+                  {user?.user_metadata?.name?.slice(0, 2).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
@@ -42,14 +42,14 @@ const NavBar: React.FC = () => {
             >
               <DropdownMenuLabel className="font-normal">
                 <p className="text-sm font-medium">
-                  {user?.profile?.preferred_username}
+                  {user?.user_metadata?.name || 'User'}
                 </p>
-                <p className="text-sm text-gray-400">{user?.profile?.email}</p>
+                <p className="text-sm text-gray-400">{user?.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="hover:bg-gray-800"
-                onClick={() => signoutRedirect()}
+                onClick={() => signOut()}
               >
                 <LogOut />
                 <span>Log Out</span>

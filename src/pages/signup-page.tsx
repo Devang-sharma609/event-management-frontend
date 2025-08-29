@@ -6,25 +6,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
-const LoginPage: React.FC = () => {
-  const { signIn, user } = useAuth();
+const SignupPage: React.FC = () => {
+  const { signUp, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Redirect if already authenticated
   if (user) {
-    const redirectPath = localStorage.getItem("redirectPath");
-    if (redirectPath) {
-      localStorage.removeItem("redirectPath");
-      navigate(redirectPath);
-    } else {
-      navigate("/dashboard");
-    }
+    navigate("/dashboard");
     return null;
   }
 
@@ -34,14 +32,11 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await signIn(email, password);
-      const redirectPath = localStorage.getItem("redirectPath");
-      if (redirectPath) {
-        localStorage.removeItem("redirectPath");
-        navigate(redirectPath);
-      } else {
-        navigate("/dashboard");
-      }
+      await signUp(email, password, name, role);
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -53,16 +48,47 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-900 border-gray-700">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-green-400">Success!</h2>
+              <p className="text-gray-300">
+                Your account has been created successfully. Redirecting to login...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900 border-gray-700">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-white">
-            Sign In
+            Create Account
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-white">
+                Full Name
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white"
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-white">
                 Email
@@ -89,6 +115,21 @@ const LoginPage: React.FC = () => {
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="role" className="text-white">
+                Role
+              </Label>
+              <Select value={role} onValueChange={setRole} required>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                  <SelectItem value="ATTENDEE">Attendee</SelectItem>
+                  <SelectItem value="ORGANIZER">Organizer</SelectItem>
+                  <SelectItem value="STAFF">Staff</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             {error && (
               <Alert variant="destructive" className="bg-gray-800 border-red-700">
                 <AlertCircle className="h-4 w-4" />
@@ -99,16 +140,16 @@ const LoginPage: React.FC = () => {
             <Button
               type="submit"
               className="w-full bg-purple-600 hover:bg-purple-700"
-              disabled={isLoading}
+              disabled={isLoading || !role}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
           <div className="mt-4 text-center">
             <p className="text-gray-400">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-purple-400 hover:text-purple-300">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/login" className="text-purple-400 hover:text-purple-300">
+                Sign in
               </Link>
             </p>
           </div>
@@ -118,4 +159,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;

@@ -3,7 +3,7 @@ import { getTicket, getTicketQr } from "@/lib/api";
 import { format } from "date-fns";
 import { Calendar, DollarSign, MapPin, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { useParams } from "react-router";
 
 const DashboardViewTicketPage: React.FC = () => {
@@ -13,10 +13,11 @@ const DashboardViewTicketPage: React.FC = () => {
   const [error, setError] = useState<string | undefined>();
 
   const { id } = useParams();
-  const { isLoading, user } = useAuth();
+  const { isLoading, getAccessToken } = useAuth();
 
   useEffect(() => {
-    if (isLoading || !user?.access_token || !id) {
+    const accessToken = getAccessToken();
+    if (isLoading || !accessToken || !id) {
       return;
     }
 
@@ -40,14 +41,14 @@ const DashboardViewTicketPage: React.FC = () => {
       }
     };
 
-    doUseEffect(user?.access_token, id);
+    doUseEffect(accessToken, id);
 
     return () => {
       if (qrCodeUrl) {
         URL.revokeObjectURL(qrCodeUrl);
       }
     };
-  }, [user?.access_token, isLoading, id]);
+  }, [getAccessToken, isLoading, id]);
 
   const getStatusColor = (status: TicketStatus) => {
     switch (status) {

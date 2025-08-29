@@ -34,11 +34,11 @@ import {
   Trash,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Link } from "react-router";
 
 const DashboardListEventsPage: React.FC = () => {
-  const { isLoading, user } = useAuth();
+  const { isLoading, getAccessToken } = useAuth();
   const [events, setEvents] = useState<
     SpringBootPagination<EventSummary> | undefined
   >();
@@ -54,11 +54,12 @@ const DashboardListEventsPage: React.FC = () => {
   >();
 
   useEffect(() => {
-    if (isLoading || !user?.access_token) {
+    const accessToken = getAccessToken();
+    if (isLoading || !accessToken) {
       return;
     }
-    refreshEvents(user.access_token);
-  }, [isLoading, user, page]);
+    refreshEvents(accessToken);
+  }, [isLoading, getAccessToken, page]);
 
   const refreshEvents = async (accessToken: string) => {
     try {
@@ -123,16 +124,17 @@ const DashboardListEventsPage: React.FC = () => {
   };
 
   const handleDeleteEvent = async () => {
-    if (!eventToDelete || isLoading || !user?.access_token) {
+    const accessToken = getAccessToken();
+    if (!eventToDelete || isLoading || !accessToken) {
       return;
     }
 
     try {
       setDeleteEventError(undefined);
-      await deleteEvent(user.access_token, eventToDelete.id);
+      await deleteEvent(accessToken, eventToDelete.id);
       setEventToDelete(undefined);
       setDialogOpen(false);
-      refreshEvents(user.access_token);
+      refreshEvents(accessToken);
     } catch (err) {
       if (err instanceof Error) {
         setDeleteEventError(err.message);

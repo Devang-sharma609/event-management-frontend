@@ -9,12 +9,11 @@ import {
 import { getPublishedEvent } from "@/lib/api";
 import { AlertCircle, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Link, useNavigate, useParams } from "react-router";
 
 const PublishedEventsPage: React.FC = () => {
-  const { isAuthenticated, isLoading, signinRedirect, signoutRedirect } =
-    useAuth();
+  const { user, isLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const [error, setError] = useState<string | undefined>();
@@ -71,7 +70,7 @@ const PublishedEventsPage: React.FC = () => {
     <div className="bg-black min-h-screen text-white">
       {/* Nav */}
       <div className="flex justify-end p-4 container mx-auto">
-        {isAuthenticated ? (
+        {user ? (
           <div className="flex gap-4">
             <Button
               onClick={() => navigate("/dashboard/events")}
@@ -81,15 +80,18 @@ const PublishedEventsPage: React.FC = () => {
             </Button>
             <Button
               className="cursor-pointer"
-              onClick={() => signoutRedirect()}
+              onClick={() => signOut()}
             >
               Log out
             </Button>
           </div>
         ) : (
           <div className="flex gap-4">
-            <Button className="cursor-pointer" onClick={() => signinRedirect()}>
+            <Button className="cursor-pointer" onClick={() => navigate("/login")}>
               Log in
+            </Button>
+            <Button className="cursor-pointer" onClick={() => navigate("/signup")}>
+              Sign up
             </Button>
           </div>
         )}
