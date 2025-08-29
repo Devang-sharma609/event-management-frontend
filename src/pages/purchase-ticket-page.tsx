@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router";
 
 const PurchaseTicketPage: React.FC = () => {
   const { eventId, ticketTypeId } = useParams();
-  const { isLoading, user } = useAuth();
+  const { isLoading, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | undefined>();
   const [isPurchaseSuccess, setIsPurchaseASuccess] = useState(false);

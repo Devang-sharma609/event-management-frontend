@@ -8,7 +8,6 @@ interface UseRolesReturn {
   isStaff: boolean;
 }
 
-
 export const useRoles = (): UseRolesReturn => {
   const { user, isLoading } = useAuth();
   
